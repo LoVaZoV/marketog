@@ -2,17 +2,19 @@
   <AdminLayout>
     <div class="admin-profile">
       <h1>Профиль администратора</h1>
-      
+
       <!-- Карточки статистики -->
       <div class="stats-grid" v-if="store.adminStats">
         <div class="stat-card">
           <div class="stat-icon">💰</div>
           <div class="stat-info">
-            <span class="stat-value">{{ store.adminStats.totalRevenue }} ₽</span>
+            <span class="stat-value"
+              >{{ store.adminStats.totalRevenue }} ₽</span
+            >
             <span class="stat-label">Общая выручка</span>
           </div>
         </div>
-        
+
         <div class="stat-card">
           <div class="stat-icon">📦</div>
           <div class="stat-info">
@@ -20,7 +22,7 @@
             <span class="stat-label">Всего заказов</span>
           </div>
         </div>
-        
+
         <div class="stat-card">
           <div class="stat-icon">👥</div>
           <div class="stat-info">
@@ -28,7 +30,7 @@
             <span class="stat-label">Пользователей</span>
           </div>
         </div>
-        
+
         <div class="stat-card">
           <div class="stat-icon">👁</div>
           <div class="stat-info">
@@ -39,18 +41,16 @@
       </div>
 
       <!-- Загрузка -->
-      <div v-else class="loading">
-        Загрузка статистики...
-      </div>
+      <div v-else class="loading">Загрузка статистики...</div>
 
       <!-- Последние заказы -->
       <div class="recent-orders">
         <h2>Последние заказы</h2>
-        
+
         <div v-if="recentOrders.length === 0" class="empty">
           Заказов пока нет
         </div>
-        
+
         <table v-else class="orders-table">
           <thead>
             <tr>
@@ -75,7 +75,7 @@
             </tr>
           </tbody>
         </table>
-        
+
         <router-link to="/admin/analytics" class="btn-all">
           Все заказы →
         </router-link>
@@ -98,66 +98,66 @@
 </template>
 
 <script setup>
-import { onMounted, computed } from 'vue'
-import { useShopStore } from '../../stores/shop'
-import AdminLayout from './AdminLayout.vue'
+import { onMounted, computed } from "vue";
+import { useShopStore } from "../../stores/shop";
+import AdminLayout from "./AdminLayout.vue";
 
-const store = useShopStore()
+const store = useShopStore();
 
 // Исправлено: используем computed правильно
 const recentOrders = computed(() => {
-  return store.adminOrders?.slice(0, 5) || []
-})
+  return store.adminOrders?.slice(0, 5) || [];
+});
 
 onMounted(() => {
-  loadData()
-})
+  loadData();
+});
 
 const loadData = async () => {
   try {
-    await store.fetchAdminStats()
-    await store.fetchAdminOrders()
+    await store.fetchAdminStats();
+    await store.fetchAdminOrders();
   } catch (error) {
-    console.error('Ошибка загрузки:', error)
+    console.error("Ошибка загрузки:", error);
   }
-}
+};
 
 const refreshData = () => {
-  loadData()
-}
+  loadData();
+};
 
 const exportData = () => {
-  const data = JSON.stringify(store.adminOrders, null, 2)
-  const blob = new Blob([data], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `orders-${new Date().toISOString().split('T')[0]}.json`
-  a.click()
-}
+  const data = JSON.stringify(store.adminOrders, null, 2);
+  const blob = new Blob([data], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `orders-${new Date().toISOString().split("T")[0]}.json`;
+  a.click();
+};
 
 const formatDate = (dateString) => {
-  if (!dateString) return '-'
-  const date = new Date(dateString)
-  return date.toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
+  if (!dateString) return "-";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 const getStatus = (status) => {
   const statuses = {
-    'new': 'Новый',
-    'paid': 'Оплачен',
-    'processing': 'В обработке',
-    'shipped': 'Отправлен',
-    'delivered': 'Доставлен',
-    'cancelled': 'Отменён'
-  }
-  return statuses[status] || status
-}
+    new: "Новый",
+    paid: "Оплачен",
+    processing: "В обработке",
+    shipped: "Отправлен",
+    delivered: "Доставлен",
+    cancelled: "Отменён",
+  };
+  return statuses[status] || status;
+};
 </script>
 
 <style scoped>
@@ -194,7 +194,7 @@ h1 {
   display: flex;
   align-items: center;
   gap: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .stat-icon {
@@ -219,7 +219,7 @@ h1 {
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .recent-orders h2 {
@@ -257,12 +257,30 @@ h1 {
   font-weight: bold;
 }
 
-.status.new { background: #fff3cd; color: #856404; }
-.status.paid { background: #d4edda; color: #155724; }
-.status.processing { background: #cce5ff; color: #004085; }
-.status.shipped { background: #d1ecf1; color: #0c5460; }
-.status.delivered { background: #d4edda; color: #155724; }
-.status.cancelled { background: #f8d7da; color: #721c24; }
+.status.new {
+  background: #fff3cd;
+  color: #856404;
+}
+.status.paid {
+  background: #d4edda;
+  color: #155724;
+}
+.status.processing {
+  background: #cce5ff;
+  color: #004085;
+}
+.status.shipped {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+.status.delivered {
+  background: #d4edda;
+  color: #155724;
+}
+.status.cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
 
 .btn-all {
   display: inline-block;
@@ -280,7 +298,7 @@ h1 {
   background: white;
   padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .quick-actions h2 {

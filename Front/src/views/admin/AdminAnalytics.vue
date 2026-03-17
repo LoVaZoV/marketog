@@ -14,13 +14,12 @@
           <option value="delivered">Доставленные</option>
           <option value="cancelled">Отменённые</option>
         </select>
-        
-        <input 
-          v-model="searchQuery" 
-          type="text" 
+
+        <input
+          v-model="searchQuery"
+          type="text"
           placeholder="Поиск по email..."
-          @input="filterOrders"
-        />
+          @input="filterOrders" />
       </div>
 
       <!-- Сводка -->
@@ -38,34 +37,34 @@
       <!-- Таблица заказов -->
       <div class="orders-section">
         <h2>Все заказы</h2>
-        
+
         <div v-if="loading" class="loading">Загрузка...</div>
-        
+
         <div v-else-if="filteredOrders.length === 0" class="empty">
           Заказы не найдены
         </div>
-        
+
         <div v-else class="orders-list">
-          <div 
-            v-for="order in filteredOrders" 
-            :key="order.id" 
+          <div
+            v-for="order in filteredOrders"
+            :key="order.id"
             class="order-card"
-            :class="{ expanded: expandedOrder === order.id }"
-          >
+            :class="{ expanded: expandedOrder === order.id }">
             <div class="order-header" @click="toggleExpand(order.id)">
               <div class="order-main">
                 <span class="order-num">#{{ order.id.slice(-6) }}</span>
                 <span class="order-email">{{ order.customerEmail }}</span>
-                <span class="order-date">{{ formatDate(order.createdAt) }}</span>
+                <span class="order-date">{{
+                  formatDate(order.createdAt)
+                }}</span>
               </div>
               <div class="order-meta">
                 <span class="order-total">{{ order.total }} ₽</span>
-                <select 
-                  v-model="order.status" 
+                <select
+                  v-model="order.status"
                   @click.stop
                   @change="updateStatus(order.id, order.status)"
-                  class="status-select"
-                >
+                  class="status-select">
                   <option value="new">Новый</option>
                   <option value="paid">Оплачен</option>
                   <option value="processing">В обработке</option>
@@ -74,7 +73,7 @@
                   <option value="cancelled">Отменён</option>
                 </select>
                 <span class="expand-icon">
-                  {{ expandedOrder === order.id ? '▼' : '▶' }}
+                  {{ expandedOrder === order.id ? "▼" : "▶" }}
                 </span>
               </div>
             </div>
@@ -94,8 +93,8 @@
                 </thead>
                 <tbody>
                   <tr v-for="item in order.items" :key="item.id">
-                    <td>{{ item.product?.name || 'Товар удалён' }}</td>
-                    <td>{{ item.product?.category?.name || '-' }}</td>
+                    <td>{{ item.product?.name || "Товар удалён" }}</td>
+                    <td>{{ item.product?.category?.name || "-" }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>{{ item.price }} ₽</td>
                     <td>{{ item.quantity * item.price }} ₽</td>
@@ -110,17 +109,16 @@
       <!-- Топ товаров -->
       <div class="top-products">
         <h2>Топ-10 продаваемых товаров</h2>
-        
+
         <div v-if="topProducts.length === 0" class="empty">
           Нет данных о продажах
         </div>
-        
+
         <div v-else class="top-list">
-          <div 
-            v-for="(item, index) in topProducts" 
+          <div
+            v-for="(item, index) in topProducts"
             :key="item.product.id"
-            class="top-item"
-          >
+            class="top-item">
             <span class="top-place">{{ index + 1 }}</span>
             <span class="top-name">{{ item.product.name }}</span>
             <span class="top-qty">{{ item.totalSold }} шт.</span>
@@ -133,97 +131,97 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useShopStore } from '../../stores/shop'
-import AdminLayout from './AdminLayout.vue'
+import { ref, onMounted, computed } from "vue";
+import { useShopStore } from "../../stores/shop";
+import AdminLayout from "./AdminLayout.vue";
 
-const store = useShopStore()
+const store = useShopStore();
 
-const statusFilter = ref('')
-const searchQuery = ref('')
-const expandedOrder = ref(null)
-const loading = ref(false)
-const filteredOrders = ref([])
+const statusFilter = ref("");
+const searchQuery = ref("");
+const expandedOrder = ref(null);
+const loading = ref(false);
+const filteredOrders = ref([]);
 
 onMounted(async () => {
-  loading.value = true
-  await store.fetchAdminOrders()
-  filterOrders()
-  loading.value = false
-})
+  loading.value = true;
+  await store.fetchAdminOrders();
+  filterOrders();
+  loading.value = false;
+});
 
 const filterOrders = () => {
-  let result = store.adminOrders || []
-  
+  let result = store.adminOrders || [];
+
   // Фильтр по статусу
   if (statusFilter.value) {
-    result = result.filter(o => o.status === statusFilter.value)
+    result = result.filter((o) => o.status === statusFilter.value);
   }
-  
+
   // Поиск по email
   if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    result = result.filter(o => 
-      o.customerEmail?.toLowerCase().includes(query)
-    )
+    const query = searchQuery.value.toLowerCase();
+    result = result.filter((o) =>
+      o.customerEmail?.toLowerCase().includes(query),
+    );
   }
-  
-  filteredOrders.value = result
-}
+
+  filteredOrders.value = result;
+};
 
 const totalFiltered = computed(() => {
-  return filteredOrders.value.reduce((sum, o) => sum + Number(o.total || 0), 0)
-})
+  return filteredOrders.value.reduce((sum, o) => sum + Number(o.total || 0), 0);
+});
 
 const topProducts = computed(() => {
   // Считаем продажи по товарам
-  const sales = {}
-  
-  ;(store.adminOrders || []).forEach(order => {
-    ;(order.items || []).forEach(item => {
-      if (!item.product) return
-      const id = item.productId
+  const sales = {};
+
+  (store.adminOrders || []).forEach((order) => {
+    (order.items || []).forEach((item) => {
+      if (!item.product) return;
+      const id = item.productId;
       if (!sales[id]) {
         sales[id] = {
           product: item.product,
           totalSold: 0,
-          revenue: 0
-        }
+          revenue: 0,
+        };
       }
-      sales[id].totalSold += item.quantity || 0
-      sales[id].revenue += (item.quantity || 0) * Number(item.price || 0)
-    })
-  })
+      sales[id].totalSold += item.quantity || 0;
+      sales[id].revenue += (item.quantity || 0) * Number(item.price || 0);
+    });
+  });
 
   return Object.values(sales)
     .sort((a, b) => b.totalSold - a.totalSold)
-    .slice(0, 10)
-})
+    .slice(0, 10);
+});
 
 const toggleExpand = (id) => {
-  expandedOrder.value = expandedOrder.value === id ? null : id
-}
+  expandedOrder.value = expandedOrder.value === id ? null : id;
+};
 
 const updateStatus = async (orderId, status) => {
   try {
-    await store.updateOrderStatus(orderId, status)
+    await store.updateOrderStatus(orderId, status);
   } catch (error) {
-    console.error('Ошибка обновления статуса:', error)
-    alert('Не удалось обновить статус')
+    console.error("Ошибка обновления статуса:", error);
+    alert("Не удалось обновить статус");
   }
-}
+};
 
 const formatDate = (dateString) => {
-  if (!dateString) return '-'
-  const date = new Date(dateString)
-  return date.toLocaleString('ru-RU', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
+  if (!dateString) return "-";
+  const date = new Date(dateString);
+  return date.toLocaleString("ru-RU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 </script>
 
 <style scoped>
@@ -282,7 +280,7 @@ h1 {
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .orders-section h2 {
@@ -398,7 +396,7 @@ h1 {
   background: white;
   padding: 1.5rem;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .top-products h2 {
